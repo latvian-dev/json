@@ -1,0 +1,78 @@
+import java.time.Instant
+
+plugins {
+	id 'java'
+	id 'maven-publish'
+}
+
+def ENV = System.getenv()
+version = "${project_version}-${ENV.GITHUB_RUN_NUMBER ? 'build.' + ENV.GITHUB_RUN_NUMBER : 'local.' + Instant.now().epochSecond}"
+archivesBaseName = 'json'
+group = 'dev.latvian.apps'
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+repositories {
+	mavenCentral()
+
+	maven {
+		url "https://maven.latvian.dev/releases"
+		content {
+			includeGroup "dev.latvian.apps"
+		}
+	}
+}
+
+dependencies {
+	implementation('dev.latvian.apps:ansi:1.0.0-build.1')
+	implementation('dev.latvian.apps:tiny-java-server:1.0.0-build.7')
+	compileOnly('org.jetbrains:annotations:24.0.1')
+	testImplementation('org.junit.jupiter:junit-jupiter-api:5.10.0')
+	testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.10.0')
+	testImplementation('junit:junit:4.13.2')
+}
+
+jar {
+	manifest {
+		attributes 'Implementation-Version': archiveVersion
+	}
+}
+
+test {
+	useJUnitPlatform()
+}
+
+compileJava {
+	options.encoding = "UTF-8"
+	options.release.set(21)
+}
+
+java {
+	sourceCompatibility = targetCompatibility = '21'
+	withSourcesJar()
+}
+
+publishing {
+	publications {
+		mavenIchor(MavenPublication) {
+			artifactId = 'json'
+			from components.java
+		}
+	}
+
+	repositories {
+		if (ENV.MAVEN_TOKEN) {
+			maven {
+				url "https://maven.latvian.dev/releases"
+				credentials {
+					username = "lat"
+					password = "${ENV.MAVEN_TOKEN}"
+				}
+			}
+		}
+	}
+}

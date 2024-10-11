@@ -1,2 +1,2 @@
-# lson
+# json
 JSON library for Java
