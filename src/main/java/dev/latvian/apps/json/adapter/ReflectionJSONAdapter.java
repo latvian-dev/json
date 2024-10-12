@@ -1,6 +1,7 @@
 package dev.latvian.apps.json.adapter;
 
 import dev.latvian.apps.json.JSON;
+import dev.latvian.apps.json.JSONObject;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -10,6 +11,7 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class ReflectionJSONAdapter implements JSONAdapter<Object> {
 	private final Class<?> type;
@@ -40,7 +42,7 @@ public class ReflectionJSONAdapter implements JSONAdapter<Object> {
 
 	@Override
 	public Object adapt(JSON json, Object jsonValue, Type genericType) {
-		if (jsonValue instanceof Map<?, ?> object) {
+		if (jsonValue instanceof JSONObject jsonObject) {
 			if (constructor == null) {
 				try {
 					constructor = type.getDeclaredConstructor();
@@ -53,9 +55,9 @@ public class ReflectionJSONAdapter implements JSONAdapter<Object> {
 			try {
 				var o = constructor.newInstance();
 
-				for (var entry : object.entrySet()) {
+				for (var entry : jsonObject.entrySet()) {
 					if (entry.getValue() != null && entry.getValue() != JSON.NULL) {
-						var f = fields().get(String.valueOf(entry.getKey()));
+						var f = fields().get(entry.getKey());
 
 						if (f != null) {
 							f.set(o, json.adapt(entry.getValue(), f.getType()));
@@ -74,6 +76,25 @@ public class ReflectionJSONAdapter implements JSONAdapter<Object> {
 
 	@Override
 	public void write(JSON json, Writer writer, Object value, int depth, boolean pretty) throws IOException {
-		throw new UnsupportedOperationException("Reflection JSON for type '" + type.getName() + "' not supported yet");
+		var fields = fields();
+		var obj = JSONObject.of(fields.size());
+
+		for (var field : fields.entrySet()) {
+			try {
+				var o = field.getValue().get(value);
+
+				if (o instanceof Optional<?> op) {
+					if (op.isPresent()) {
+						obj.put(field.getKey(), op.get());
+					}
+				} else if (o != null) {
+					obj.put(field.getKey(), o);
+				}
+			} catch (Exception ex) {
+				throw new RuntimeException("Failed to access field '" + field.getKey() + "'", ex);
+			}
+		}
+
+		json.write(writer, obj, depth, pretty);
 	}
 }

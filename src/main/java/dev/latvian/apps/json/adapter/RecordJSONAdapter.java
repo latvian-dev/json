@@ -10,7 +10,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Optional;
 
 public class RecordJSONAdapter implements JSONAdapter<Object> {
@@ -47,7 +46,7 @@ public class RecordJSONAdapter implements JSONAdapter<Object> {
 
 	@Override
 	public Object adapt(JSON json, Object jsonValue, Type genericType) {
-		if (jsonValue instanceof Map<?, ?> object) {
+		if (jsonValue instanceof JSONObject jsonObject) {
 			var components = components();
 
 			if (constructor == null) {
@@ -62,7 +61,7 @@ public class RecordJSONAdapter implements JSONAdapter<Object> {
 				var args = new Object[components.length];
 
 				for (int i = 0; i < args.length; i++) {
-					var j = object.get(components[i].name);
+					var j = jsonObject.get(components[i].name);
 
 					if (j != null && j != JSON.NULL) {
 						if (components[i].optional) {
@@ -97,7 +96,7 @@ public class RecordJSONAdapter implements JSONAdapter<Object> {
 					if (op.isPresent()) {
 						obj.put(rc.name, op.get());
 					}
-				} else {
+				} else if (o != null) {
 					obj.put(rc.name, o);
 				}
 			} catch (Exception ex) {

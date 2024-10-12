@@ -8,6 +8,10 @@ import java.lang.reflect.Type;
 import java.util.Locale;
 
 public class EnumJSONAdapter implements JSONAdapter<Object> {
+	public interface CustomName {
+		String getJSONName();
+	}
+
 	private record EnumValue(int index, String name, Object value) {
 	}
 
@@ -24,7 +28,7 @@ public class EnumJSONAdapter implements JSONAdapter<Object> {
 			values = new EnumValue[c.length];
 
 			for (int i = 0; i < c.length; i++) {
-				values[i] = new EnumValue(i, ((Enum<?>) c[i]).name().toLowerCase(Locale.ROOT), c[i]);
+				values[i] = new EnumValue(i, c[i] instanceof CustomName cn ? cn.getJSONName() : ((Enum<?>) c[i]).name().toLowerCase(Locale.ROOT), c[i]);
 			}
 		}
 
@@ -33,6 +37,16 @@ public class EnumJSONAdapter implements JSONAdapter<Object> {
 
 	@Override
 	public Object adapt(JSON json, Object jsonValue, Type genericType) {
+		if (jsonValue instanceof Number n) {
+			int i = n.intValue();
+
+			if (i >= 0 && i < values().length) {
+				return values()[i].value;
+			} else {
+				throw new IndexOutOfBoundsException("Index out of bounds: " + i);
+			}
+		}
+
 		var str = String.valueOf(jsonValue);
 
 		for (var val : values()) {
@@ -41,18 +55,11 @@ public class EnumJSONAdapter implements JSONAdapter<Object> {
 			}
 		}
 
-		throw new NullPointerException("Eunm value '" + str + "' not found");
+		throw new NullPointerException("Unknown enum constant: " + str);
 	}
 
 	@Override
 	public void write(JSON json, Writer writer, Object value, int depth, boolean pretty) throws IOException {
-		for (var val : values()) {
-			if (val.value == value) {
-				json.write(writer, val.name, depth, pretty);
-				return;
-			}
-		}
-
-		json.write(writer, "", depth, pretty);
+		json.write(writer, value instanceof CustomName cn ? cn.getJSONName() : ((Enum<?>) value).name().toLowerCase(Locale.ROOT), depth, pretty);
 	}
 }

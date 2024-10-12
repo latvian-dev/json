@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
-import java.util.Collection;
 
 public class ArrayJSONAdapter implements JSONAdapter<Object> {
 	private final Class<?> component;
@@ -20,20 +19,8 @@ public class ArrayJSONAdapter implements JSONAdapter<Object> {
 
 	@Override
 	public Object adapt(JSON json, Object jsonValue, Type genericType) {
-		if (jsonValue instanceof Iterable<?> itr) {
-			int size;
-
-			if (itr instanceof Collection<?> c) {
-				size = c.size();
-			} else {
-				size = 0;
-
-				for (var ignored : itr) {
-					size++;
-				}
-			}
-
-			if (size == 0) {
+		if (jsonValue instanceof JSONArray jsonArray) {
+			if (jsonArray.isEmpty()) {
 				if (emptyArray == null) {
 					emptyArray = Array.newInstance(component, 0);
 				}
@@ -41,19 +28,19 @@ public class ArrayJSONAdapter implements JSONAdapter<Object> {
 				return emptyArray;
 			}
 
-			var arr = Array.newInstance(component, size);
+			var arr = Array.newInstance(component, jsonArray.size());
 
 			int i = 0;
 
-			for (var value : itr) {
+			for (var value : jsonArray) {
 				Array.set(arr, i, json.adapt(value, component));
 				i++;
 			}
 
 			return arr;
-		} else {
-			throw new IllegalArgumentException("Expected collection, got " + jsonValue.getClass().getName());
 		}
+
+		throw new IllegalArgumentException("Expected JSON array for array of '" + component.getName() + "'");
 	}
 
 	@Override

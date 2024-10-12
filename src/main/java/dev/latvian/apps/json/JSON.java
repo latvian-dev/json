@@ -1,6 +1,7 @@
 package dev.latvian.apps.json;
 
 import dev.latvian.apps.json.adapter.JSONAdapter;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -15,14 +16,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -297,11 +294,12 @@ public class JSON {
 		return new JSON(this);
 	}
 
+	@ApiStatus.Internal
 	@SuppressWarnings("unchecked")
 	public <T> T adapt(Object value, Type genericType) {
 		var t = genericType == null ? null : JSONAdapter.getRawType(genericType);
 
-		if (value == null) {
+		if (value == null || value == NULL) {
 			return t == Optional.class ? (T) Optional.empty() : null;
 		} else if (t == null || t == Object.class || t.isInstance(value)) {
 			return (T) value;
@@ -333,22 +331,8 @@ public class JSON {
 			return (T) Float.valueOf(((Number) value).floatValue());
 		} else if (t == Double.class || t == Double.TYPE) {
 			return (T) Double.valueOf(((Number) value).doubleValue());
-		} else if (t == Map.class || t == JSONObject.class) {
+		} else if (t == JSONObject.class || t == JSONArray.class) {
 			return (T) value;
-		} else if (t == List.class || t == Collection.class || t == Iterable.class || t == JSONArray.class) {
-			return (T) value;
-		} else if (t == Set.class) {
-			return (T) new HashSet<>((Collection<?>) value);
-		} else if (t.isEnum()) {
-			var str = String.valueOf(value);
-
-			for (var e : t.getEnumConstants()) {
-				if (e.toString().equalsIgnoreCase(str)) {
-					return (T) e;
-				}
-			}
-
-			throw new IllegalArgumentException("Unknown enum constant: " + str);
 		} else {
 			return (T) getAdapter(t).adapt(this, value, genericType);
 		}
