@@ -28,9 +28,9 @@ repositories {
 }
 
 dependencies {
-	compileOnly('dev.latvian.apps:tiny-java-server:1.0.0-build.16')
+	compileOnly('dev.latvian.apps:tiny-java-server:1.0.0-build.25')
 	compileOnly('org.jetbrains:annotations:24.0.1')
-	testImplementation('dev.latvian.apps:ansi:1.0.0-build.1')
+	testImplementation('dev.latvian.apps:ansi:1.0.0-build.9')
 	testImplementation('org.junit.jupiter:junit-jupiter-api:5.10.0')
 	testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.10.0')
 	testImplementation('junit:junit:4.13.2')

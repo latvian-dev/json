@@ -10,6 +10,8 @@ public class TestConfig {
 	public static class WebConfig {
 		public int port = 12345;
 		public String title = "Test";
+		public boolean required = false;
+		public long[] ids = new long[0];
 	}
 
 	public static class DiscordConfig {

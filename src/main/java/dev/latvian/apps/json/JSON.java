@@ -319,6 +319,8 @@ public class JSON {
 			return (T) Character.valueOf(String.valueOf(value).charAt(0));
 		} else if (t == Number.class) {
 			return (T) value;
+		} else if (t == Boolean.class || t == Boolean.TYPE) {
+			return (T) value;
 		} else if (t == Byte.class || t == Byte.TYPE) {
 			return (T) Byte.valueOf(((Number) value).byteValue());
 		} else if (t == Short.class || t == Short.TYPE) {
