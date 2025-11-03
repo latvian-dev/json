@@ -7,14 +7,10 @@ plugins {
 
 def ENV = System.getenv()
 version = "${project_version}-${ENV.GITHUB_RUN_NUMBER ? 'build.' + ENV.GITHUB_RUN_NUMBER : 'local.' + Instant.now().epochSecond}"
-archivesBaseName = 'json'
 group = 'dev.latvian.apps'
+base.archivesName = 'json'
 
-compileJava.options.encoding = 'UTF-8'
-
-tasks.withType(JavaCompile) {
-	options.encoding = 'UTF-8'
-}
+println("Building version: ${version}")
 
 repositories {
 	mavenCentral()
@@ -28,12 +24,12 @@ repositories {
 }
 
 dependencies {
-	compileOnly('dev.latvian.apps:tiny-java-server:1.0.0-build.25')
+	compileOnly('dev.latvian.apps:tiny-java-server:1.0.0-build.33')
 	compileOnly('org.jetbrains:annotations:24.0.1')
-	testImplementation('dev.latvian.apps:ansi:1.0.0-build.9')
-	testImplementation('org.junit.jupiter:junit-jupiter-api:5.10.0')
-	testRuntimeOnly('org.junit.jupiter:junit-jupiter-engine:5.10.0')
-	testImplementation('junit:junit:4.13.2')
+
+	testImplementation('dev.latvian.apps:ansi:1.0.0-build.11')
+	testImplementation('org.junit.jupiter:junit-jupiter:6.0.1')
+	testRuntimeOnly('org.junit.platform:junit-platform-launcher')
 }
 
 jar {
@@ -49,11 +45,17 @@ test {
 compileJava {
 	options.encoding = "UTF-8"
 	options.release.set(21)
+	options.compilerArgs << '-parameters' << '-Xmaxerrs' << '1000'
 }
 
 java {
 	sourceCompatibility = targetCompatibility = '21'
 	withSourcesJar()
+	withJavadocJar()
+}
+
+tasks.withType(Javadoc) {
+	options.addStringOption('Xdoclint:none', '-quiet')
 }
 
 publishing {
@@ -65,12 +67,12 @@ publishing {
 	}
 
 	repositories {
-		if (ENV.MAVEN_TOKEN) {
+		if (ENV.MAVEN_URL && ENV.MAVEN_USERNAME && ENV.MAVEN_TOKEN) {
 			maven {
-				url "https://maven.latvian.dev/releases"
+				url = ENV.MAVEN_URL
 				credentials {
-					username = "lat"
-					password = "${ENV.MAVEN_TOKEN}"
+					username = ENV.MAVEN_USERNAME
+					password = ENV.MAVEN_TOKEN
 				}
 			}
 		}
