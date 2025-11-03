@@ -8,6 +8,10 @@ public class JSONObject extends LinkedHashMap<String, Object> implements JSONSer
 		return new JSONObject(8);
 	}
 
+	public static JSONObject ofSize(int size) {
+		return new JSONObject(size);
+	}
+
 	public static JSONObject of(int initialCapacity) {
 		return new JSONObject(initialCapacity);
 	}

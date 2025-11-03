@@ -52,7 +52,7 @@ public class ArrayJSONAdapter implements JSONAdapter<Object> {
 			return;
 		}
 
-		var arr = JSONArray.of(len);
+		var arr = JSONArray.ofSize(len);
 
 		for (var i = 0; i < len; i++) {
 			arr.add(Array.get(value, i));

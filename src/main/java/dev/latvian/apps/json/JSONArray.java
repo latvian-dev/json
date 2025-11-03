@@ -9,6 +9,10 @@ public class JSONArray extends ArrayList<Object> implements JSONSerializable {
 		return new JSONArray(4);
 	}
 
+	public static JSONArray ofSize(int size) {
+		return new JSONArray(size);
+	}
+
 	public static JSONArray of(Object value) {
 		return new JSONArray(1).append(value);
 	}
