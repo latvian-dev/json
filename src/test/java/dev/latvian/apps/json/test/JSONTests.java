@@ -16,8 +16,8 @@ public class JSONTests {
 	public void serialize() {
 		var map = JSONObject.of("a", 10).append("b", "Hi").append("c", List.of(1, 2, 3));
 
-		Assertions.assertEquals(JSON.DEFAULT.write(map), """
-			{"a":10,"b":"Hi","c":[1,2,3]}""");
+		Assertions.assertEquals("""
+			{"a":10,"b":"Hi","c":[1,2,3]}""", JSON.DEFAULT.write(map));
 	}
 
 	@Test
@@ -25,19 +25,31 @@ public class JSONTests {
 		var map = JSON.DEFAULT.read("""
 			{ "a"   : 10    , "b":"Hi","c":[  1,  2,3  ] }""").readObject();
 
-		Assertions.assertEquals(map.asArray("c").asInt(2), 3);
+		Assertions.assertEquals(3, map.asArray("c").asInt(2));
 	}
 
 	@Test
 	public void adapt() {
 		var config = JSON.DEFAULT.read("""
-			{"web":{"required":true,"ids":[1, 2, 3]},"database":"https://lat:test@fakedb.com:1234/","discord":[{"clientId":"7"}]}""").adapt(TestConfig.class);
+			{
+			  "web": {
+			    "required": true,
+			    "ids": [1, 2, 3]
+			  },
+			  "database": "https://lat:test@fakedb.com:1234/",
+			  "discord": [
+			    {
+			      "clientId": "7"
+			    }
+			  ]
+			}
+			""").adapt(TestConfig.class);
 
-		Assertions.assertEquals(config.database.toString(), "https://lat:test@fakedb.com:1234/");
-		Assertions.assertEquals(config.discord[0].clientId, "7");
-		Assertions.assertEquals(config.discord[0].clientSecret, "shh");
+		Assertions.assertEquals("https://lat:test@fakedb.com:1234/", config.database.toString());
+		Assertions.assertEquals("7", config.discord[0].clientId);
+		Assertions.assertEquals("shh", config.discord[0].clientSecret);
 		Assertions.assertTrue(config.web.required);
-		Assertions.assertEquals(Arrays.toString(config.web.ids), Arrays.toString(new long[]{1L, 2L, 3L}));
+		Assertions.assertEquals(Arrays.toString(new long[]{1L, 2L, 3L}), Arrays.toString(config.web.ids));
 	}
 
 	@Test
@@ -63,16 +75,16 @@ public class JSONTests {
 			new RecordTest("c")
 		)));
 
-		var str = JSON.DEFAULT.write(r);
+		var actual = JSON.DEFAULT.write(r);
 		Log.info(r);
-		Log.info(str);
+		Log.info(actual);
 
-		var r2 = JSON.DEFAULT.read(str).adapt(RecordTest.class);
-		var str2 = JSON.DEFAULT.write(r2);
+		var r2 = JSON.DEFAULT.read(actual).adapt(RecordTest.class);
+		var expected = JSON.DEFAULT.write(r2);
 
 		Log.info(r2);
-		Log.info(str2);
+		Log.info(expected);
 
-		Assertions.assertEquals(str, str2);
+		Assertions.assertEquals(expected, actual);
 	}
 }

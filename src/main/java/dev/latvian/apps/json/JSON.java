@@ -22,13 +22,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class JSON {
+	private static final Pattern UUID_PATTERN = Pattern.compile("(\\w{8})(\\w{4})(\\w{4})(\\w{4})(\\w{12})");
 	public static final Object NULL = new Object();
 	public static final JSON DEFAULT = new JSON(null);
 
 	static {
-		DEFAULT.registerStringAdapter(UUID.class, UUID::fromString);
+		DEFAULT.registerStringAdapter(UUID.class, value -> value.length() == 36 ? UUID.fromString(value) : UUID.fromString(UUID_PATTERN.matcher(value).replaceFirst("$1-$2-$3-$4-$5")));
 		DEFAULT.registerStringAdapter(Date.class, value -> Date.from(Instant.parse(value)), date -> date.toInstant().toString());
 		DEFAULT.registerStringAdapter(Instant.class, Instant::parse);
 		DEFAULT.registerStringAdapter(URL.class, value -> {

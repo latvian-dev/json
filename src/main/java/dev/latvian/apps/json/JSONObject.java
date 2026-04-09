@@ -52,6 +52,12 @@ public class JSONObject extends LinkedHashMap<String, Object> implements JSONSer
 		return o == JSON.NULL ? null : o;
 	}
 
+	@Override
+	public Object getOrDefault(Object key, Object defaultValue) {
+		var o = get(key);
+		return o == null ? defaultValue : o;
+	}
+
 	public JSONObject append(String key, Object value) {
 		put(key, value);
 		return this;
@@ -89,19 +95,17 @@ public class JSONObject extends LinkedHashMap<String, Object> implements JSONSer
 	public Number asNumber(String key, Number def) {
 		var o = get(key);
 
-		if (o == null) {
-			return def;
-		} else if (o instanceof Number n) {
-			return n;
-		} else if (o instanceof CharSequence) {
-			try {
-				return Double.parseDouble(o.toString());
-			} catch (NumberFormatException e) {
-				return def;
+		return switch (o) {
+			case Number n -> n;
+			case CharSequence ignored -> {
+				try {
+					yield Double.parseDouble(o.toString());
+				} catch (NumberFormatException e) {
+					yield def;
+				}
 			}
-		} else {
-			return def;
-		}
+			case null, default -> def;
+		};
 	}
 
 	public int asInt(String key, int def) {
