@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class JSONArray extends ArrayList<Object> implements JSONSerializable {
+public class JSONArray extends ArrayList<Object> implements StructuredJSON, JSONSerializable {
 	public static JSONArray of() {
 		return new JSONArray(4);
 	}
@@ -46,6 +46,16 @@ public class JSONArray extends ArrayList<Object> implements JSONSerializable {
 
 	@Override
 	public final Object toJSON() {
+		return this;
+	}
+
+	@Override
+	public JSONObject asObject() {
+		throw new ClassCastException("JSON object expected");
+	}
+
+	@Override
+	public JSONArray asArray() {
 		return this;
 	}
 

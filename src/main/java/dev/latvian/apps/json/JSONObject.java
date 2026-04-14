@@ -3,7 +3,7 @@ package dev.latvian.apps.json;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class JSONObject extends LinkedHashMap<String, Object> implements JSONSerializable {
+public class JSONObject extends LinkedHashMap<String, Object> implements JSONSerializable, StructuredJSON {
 	public static JSONObject of() {
 		return new JSONObject(8);
 	}
@@ -44,6 +44,16 @@ public class JSONObject extends LinkedHashMap<String, Object> implements JSONSer
 	@Override
 	public final Object toJSON() {
 		return this;
+	}
+
+	@Override
+	public JSONObject asObject() {
+		return this;
+	}
+
+	@Override
+	public JSONArray asArray() {
+		throw new ClassCastException("JSON array expected");
 	}
 
 	@Override
