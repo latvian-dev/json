@@ -1,7 +1,7 @@
 package dev.latvian.apps.json;
 
-import dev.latvian.apps.tinyserver.http.response.HTTPResponse;
-import dev.latvian.apps.tinyserver.http.response.HTTPStatus;
+import dev.latvian.apps.tinyhttp.http.response.HTTPResponse;
+import dev.latvian.apps.tinyhttp.http.response.HTTPStatus;
 
 public interface JSONResponse {
 	HTTPResponse SUCCESS = of(JSONObject.of("success", true));

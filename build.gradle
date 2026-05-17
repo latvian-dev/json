@@ -24,7 +24,7 @@ repositories {
 }
 
 dependencies {
-	compileOnly('dev.latvian.apps:tiny-java-server:1.0.0-build.33')
+	compileOnly('dev.latvian.apps:tiny-http:1.0.0-build.53')
 	compileOnly('org.jetbrains:annotations:24.0.1')
 
 	testImplementation('dev.latvian.apps:ansi:1.0.0-build.11')
